@@ -1,0 +1,64 @@
+MACHINE LEARNING EVALUATION
+============================================================
+
+DATASET
+------------------------------------------------------------
+ML feature windows: 3383
+ML anomaly windows: 205
+Rule-based alert windows: 56
+Overlapping windows: 41
+
+OVERLAP ANALYSIS
+------------------------------------------------------------
+ML anomaly windows overlapping rule alerts: 20.00%
+Rule alert windows also identified by ML: 73.21%
+
+ATTACK TYPE OVERLAP
+------------------------------------------------------------
+BRUTE FORCE: 0/3 alert windows matched (0.00%)
+ICMP FLOOD: 17/23 alert windows matched (73.91%)
+PORT SCAN: 5/5 alert windows matched (100.00%)
+SUSPICIOUS PORT: 14/20 alert windows matched (70.00%)
+SYN FLOOD: 18/18 alert windows matched (100.00%)
+UDP FLOOD: 5/5 alert windows matched (100.00%)
+
+ANOMALY PATTERN ANALYSIS
+------------------------------------------------------------
+SYN-HEAVY: 39
+PORT-SCAN-LIKE: 46
+ICMP-HEAVY: 44
+UDP-HEAVY: 9
+OTHER-ANOMALY: 67
+
+TOP MATCHED ANOMALIES
+------------------------------------------------------------
+2026-09-14T23:59:25 | 192.168.100.10 | score=0.247037 | packets=8060 | tcp_syn=8060 | udp=0 | icmp=0 | unique_ports=1
+2026-09-17T20:13:00 | 192.168.100.10 | score=0.241195 | packets=7836 | tcp_syn=7836 | udp=0 | icmp=0 | unique_ports=1
+2026-09-14T23:58:15 | 192.168.100.10 | score=0.238192 | packets=7468 | tcp_syn=7468 | udp=0 | icmp=0 | unique_ports=1
+2026-09-14T23:58:55 | 192.168.100.10 | score=0.238192 | packets=7675 | tcp_syn=7675 | udp=0 | icmp=0 | unique_ports=1
+2026-09-14T23:58:35 | 192.168.100.10 | score=0.237942 | packets=7598 | tcp_syn=7598 | udp=0 | icmp=0 | unique_ports=1
+2026-09-14T23:58:25 | 192.168.100.10 | score=0.236695 | packets=7516 | tcp_syn=7516 | udp=0 | icmp=0 | unique_ports=1
+2026-09-18T20:24:00 | 192.168.100.10 | score=0.236497 | packets=7030 | tcp_syn=7030 | udp=0 | icmp=0 | unique_ports=1
+2026-09-14T23:58:45 | 192.168.100.10 | score=0.236446 | packets=7290 | tcp_syn=7290 | udp=0 | icmp=0 | unique_ports=1
+2026-09-18T08:50:45 | 192.168.100.10 | score=0.236446 | packets=7300 | tcp_syn=7300 | udp=0 | icmp=0 | unique_ports=1
+2026-09-14T23:59:35 | 192.168.100.10 | score=0.234661 | packets=6675 | tcp_syn=6675 | udp=0 | icmp=0 | unique_ports=1
+2026-09-14T18:35:50 | 192.168.100.10 | score=0.214864 | packets=12445 | tcp_syn=0 | udp=0 | icmp=12445 | unique_ports=0
+2026-09-14T18:36:00 | 192.168.100.10 | score=0.212450 | packets=12125 | tcp_syn=0 | udp=0 | icmp=12125 | unique_ports=0
+2026-09-14T23:58:05 | 192.168.100.10 | score=0.212118 | packets=5705 | tcp_syn=5705 | udp=0 | icmp=0 | unique_ports=1
+2026-09-14T23:59:15 | 192.168.100.10 | score=0.212118 | packets=5721 | tcp_syn=5721 | udp=0 | icmp=0 | unique_ports=1
+2026-09-16T20:58:30 | 192.168.100.10 | score=0.204417 | packets=11855 | tcp_syn=0 | udp=11855 | icmp=0 | unique_ports=1
+2026-09-14T18:35:40 | 192.168.100.10 | score=0.190856 | packets=10598 | tcp_syn=0 | udp=0 | icmp=10598 | unique_ports=0
+2026-09-14T23:59:05 | 192.168.100.10 | score=0.189343 | packets=4361 | tcp_syn=4361 | udp=0 | icmp=0 | unique_ports=1
+2026-09-16T20:58:20 | 192.168.100.10 | score=0.181532 | packets=8932 | tcp_syn=0 | udp=8931 | icmp=0 | unique_ports=1
+2026-09-14T18:34:15 | 192.168.100.10 | score=0.180420 | packets=9041 | tcp_syn=0 | udp=0 | icmp=9041 | unique_ports=0
+2026-09-18T20:25:25 | 192.168.100.10 | score=0.180420 | packets=9027 | tcp_syn=0 | udp=0 | icmp=9027 | unique_ports=0
+2026-09-14T18:34:05 | 192.168.100.10 | score=0.179960 | packets=8769 | tcp_syn=0 | udp=0 | icmp=8769 | unique_ports=0
+2026-09-18T20:37:40 | 192.168.100.10 | score=0.176029 | packets=8551 | tcp_syn=0 | udp=0 | icmp=8551 | unique_ports=0
+2026-09-18T20:26:05 | 192.168.100.10 | score=0.157007 | packets=7323 | tcp_syn=0 | udp=7323 | icmp=0 | unique_ports=1
+2026-09-16T20:58:40 | 192.168.100.10 | score=0.156118 | packets=7054 | tcp_syn=0 | udp=7054 | icmp=0 | unique_ports=1
+2026-09-15T20:52:30 | 192.168.100.10 | score=0.143661 | packets=6659 | tcp_syn=0 | udp=0 | icmp=6659 | unique_ports=0
+2026-09-17T20:10:25 | 192.168.100.10 | score=0.138889 | packets=1891 | tcp_syn=1891 | udp=0 | icmp=0 | unique_ports=1
+2026-09-14T18:33:45 | 192.168.100.10 | score=0.137114 | packets=6367 | tcp_syn=0 | udp=0 | icmp=6367 | unique_ports=0
+2026-09-15T20:53:10 | 192.168.100.10 | score=0.136252 | packets=6279 | tcp_syn=0 | udp=0 | icmp=6279 | unique_ports=0
+2026-09-14T18:33:55 | 192.168.100.10 | score=0.129799 | packets=6114 | tcp_syn=0 | udp=0 | icmp=6114 | unique_ports=0
+2026-09-15T20:52:40 | 192.168.100.10 | score=0.128310 | packets=6052 | tcp_syn=0 | udp=0 | icmp=6052 | unique_ports=0

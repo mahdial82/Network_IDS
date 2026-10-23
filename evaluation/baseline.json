@@ -1,0 +1,33 @@
+{
+    "total_packets": 92284,
+    "total_bytes": 5784826,
+    "protocols": {
+        "UDP": 55771,
+        "TCP": 31437,
+        "ICMP": 3717,
+        "ARP": 965,
+        "OTHER": 306,
+        "IPv4": 88
+    },
+    "alert_total": 40,
+    "attacks": {
+        "ICMP FLOOD": 17,
+        "SYN FLOOD": 14,
+        "PORT SCAN": 3,
+        "UDP FLOOD": 3,
+        "SUSPICIOUS PORT": 2,
+        "BRUTE FORCE": 1
+    },
+    "severities": {
+        "HIGH": 35,
+        "MEDIUM": 5
+    },
+    "statuses": {
+        "NEW": 39,
+        "ACKNOWLEDGED": 1
+    },
+    "first_packet": "2026-09-16 00:21:16",
+    "last_packet": "2026-09-18 08:06:59",
+    "packet_rate": 0.4597121692910836,
+    "db_size": 15937536
+}

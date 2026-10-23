@@ -1,0 +1,66 @@
+{
+    "generated_at": "2026-09-21 18:21:00",
+    "controlled_detection": {
+        "positive_tests": 6,
+        "detected_tests": 6,
+        "detection_rate": 100.0,
+        "negative_tests": 1,
+        "false_positive_tests": 0,
+        "false_positive_rate": 0.0
+    },
+    "database_snapshot": {
+        "total_packets": 208994,
+        "total_bytes": 12827784,
+        "total_alerts": 74,
+        "attacks": {
+            "BRUTE FORCE": 3,
+            "ICMP FLOOD": 23,
+            "PORT SCAN": 5,
+            "SUSPICIOUS PORT": 20,
+            "SYN FLOOD": 18,
+            "UDP FLOOD": 5
+        },
+        "severity": {
+            "HIGH": 49,
+            "MEDIUM": 25
+        },
+        "status": {
+            "ACKNOWLEDGED": 1,
+            "NEW": 73
+        },
+        "protocols": {
+            "ICMP": 81975,
+            "UDP": 76399,
+            "TCP": 49027,
+            "ARP": 1113,
+            "OTHER": 369,
+            "IPv4": 111
+        }
+    },
+    "performance": {
+        "run_1": {
+            "duration_seconds": 30.405276,
+            "processed_packets": 26633,
+            "average_pps": 875.9335057507782,
+            "peak_pps": 3178.709344478977,
+            "average_cpu_percent": 39.91474292305395,
+            "peak_cpu_percent": 63.22675548390395,
+            "average_ram_mb": 74.60690104166666,
+            "peak_ram_mb": 76.19140625,
+            "database_size_bytes": 30957568,
+            "exit_code": 0
+        },
+        "load_test": {
+            "duration_seconds": 30.345625,
+            "processed_packets": 29199,
+            "average_pps": 962.2144872613434,
+            "peak_pps": 3070.306418051283,
+            "average_cpu_percent": 43.143365363104145,
+            "peak_cpu_percent": 66.98411958042936,
+            "average_ram_mb": 74.97486979166666,
+            "peak_ram_mb": 76.6015625,
+            "database_size_bytes": 35897344,
+            "exit_code": 0
+        }
+    }
+}

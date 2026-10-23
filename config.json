@@ -1,0 +1,42 @@
+{
+    "interface": "ens37",
+    "csv_file": "lab_traffic.csv",
+    "db_file": "ids_alerts.db",
+    "log_file": "ids_system.log",
+    "log_max_bytes": 5242880,
+    "log_backup_count": 3,
+    "time_window": 5,
+    "port_scan_threshold": 10,
+    "syn_flood_threshold": 50,
+    "icmp_flood_threshold": 50,
+    "udp_flood_threshold": 50,
+    "alert_suppression_seconds": 10,
+    "suspicious_port_suppression_seconds": 30,
+    "brute_force_threshold": 10,
+    "brute_force_window": 30,
+    "brute_force_suppression_seconds": 60,
+    "db_commit_interval": 100,
+    "suspicious_ports": {
+        "21": "FTP",
+        "22": "SSH",
+        "23": "TELNET",
+        "25": "SMTP",
+        "53": "DNS",
+        "80": "HTTP",
+        "110": "POP3",
+        "139": "NETBIOS",
+        "143": "IMAP",
+        "443": "HTTPS",
+        "445": "SMB",
+        "3389": "RDP"
+    },
+    "brute_force_ports": {
+        "21": "FTP",
+        "22": "SSH",
+        "23": "TELNET",
+        "25": "SMTP",
+        "110": "POP3",
+        "143": "IMAP",
+        "3389": "RDP"
+    }
+}

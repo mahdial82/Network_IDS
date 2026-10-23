@@ -1,0 +1,13 @@
+NETWORK IDS PERFORMANCE REPORT
+==================================================
+
+Duration: 30.35 seconds
+Processed Packets: 29,199
+Average PPS: 962.21
+Peak PPS: 3070.31
+Average CPU: 43.14%
+Peak CPU: 66.98%
+Average RAM: 74.97 MB
+Peak RAM: 76.60 MB
+Database Size: 35,897,344 bytes
+Process Exit Code: 0

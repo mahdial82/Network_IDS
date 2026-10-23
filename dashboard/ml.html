@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NIDS - Machine Learning</title>
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: #0f172a;
+    color: #e2e8f0;
+}
+
+.container {
+    width: 94%;
+    max-width: 1400px;
+    margin: 30px auto;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.header h1 {
+    margin: 0;
+    font-size: 28px;
+}
+
+.header p {
+    margin: 6px 0 0;
+    color: #94a3b8;
+}
+
+.back {
+    text-decoration: none;
+    color: white;
+    background: #2563eb;
+    padding: 10px 16px;
+    border-radius: 8px;
+}
+
+.cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+    margin-bottom: 25px;
+}
+
+.card {
+    background: #1e293b;
+    border-radius: 12px;
+    padding: 22px;
+    border: 1px solid #334155;
+}
+
+.card-title {
+    color: #94a3b8;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+.card-value {
+    font-size: 30px;
+    font-weight: bold;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.panel {
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 12px;
+    padding: 22px;
+}
+
+.panel h2 {
+    margin-top: 0;
+    font-size: 20px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th,
+td {
+    text-align: left;
+    padding: 11px 8px;
+    border-bottom: 1px solid #334155;
+    font-size: 13px;
+}
+
+th {
+    color: #94a3b8;
+}
+
+.badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 6px;
+    background: #7f1d1d;
+    color: #fecaca;
+    font-size: 11px;
+    font-weight: bold;
+}
+
+.score {
+    font-family: monospace;
+}
+
+.status {
+    margin-top: 20px;
+    color: #94a3b8;
+    font-size: 13px;
+}
+
+@media (max-width: 1000px) {
+    .cards {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 600px) {
+    .cards {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="header">
+        <div>
+            <h1>Machine Learning Anomaly Detection</h1>
+            <p>Isolation Forest analysis of network traffic</p>
+        </div>
+        <a class="back" href="/">Main Dashboard</a>
+    </div>
+
+    <div class="cards">
+        <div class="card">
+            <div class="card-title">Feature Windows</div>
+            <div class="card-value" id="featureWindows">-</div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">ML Anomalies</div>
+            <div class="card-value" id="anomalyWindows">-</div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">Anomaly Rate</div>
+            <div class="card-value" id="anomalyRate">-</div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">Rule → ML Coverage</div>
+            <div class="card-value" id="coverageRate">-</div>
+        </div>
+    </div>
+
+    <div class="grid">
+
+        <div class="panel">
+            <h2>ML / Rule-Based Comparison</h2>
+
+            <table>
+                <tbody>
+                    <tr>
+                        <th>Rule Alert Windows</th>
+                        <td id="ruleWindows">-</td>
+                    </tr>
+                    <tr>
+                        <th>Overlapping Windows</th>
+                        <td id="overlapWindows">-</td>
+                    </tr>
+                    <tr>
+                        <th>ML → Rule Overlap</th>
+                        <td id="mlOverlap">-</td>
+                    </tr>
+                    <tr>
+                        <th>Rule → ML Coverage</th>
+                        <td id="ruleCoverage">-</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="panel">
+            <h2>Anomaly Patterns</h2>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Pattern</th>
+                        <th>Windows</th>
+                    </tr>
+                </thead>
+                <tbody id="patternTable"></tbody>
+            </table>
+        </div>
+
+    </div>
+
+    <div class="panel">
+        <h2>Attack Type Overlap</h2>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Attack Type</th>
+                    <th>Matched</th>
+                    <th>Total</th>
+                    <th>Overlap</th>
+                </tr>
+            </thead>
+            <tbody id="attackTable"></tbody>
+        </table>
+    </div>
+
+    <br>
+
+    <div class="panel">
+        <h2>Top ML Anomalies</h2>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Time Window</th>
+                    <th>Source IP</th>
+                    <th>Packets</th>
+                    <th>SYN</th>
+                    <th>UDP</th>
+                    <th>ICMP</th>
+                    <th>Unique Ports</th>
+                    <th>Score</th>
+                    <th>Result</th>
+                </tr>
+            </thead>
+
+            <tbody id="anomalyTable"></tbody>
+        </table>
+
+        <div class="status" id="status">
+            Loading ML data...
+        </div>
+    </div>
+
+</div>
+
+<script>
+const API = "http://127.0.0.1:8000";
+
+function escapeHtml(value) {
+    return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+}
+
+async function loadML() {
+    try {
+        const statsResponse = await fetch(`${API}/ml/stats`);
+        const stats = await statsResponse.json();
+
+        document.getElementById("featureWindows").textContent =
+            stats.feature_windows;
+
+        document.getElementById("anomalyWindows").textContent =
+            stats.anomaly_windows;
+
+        document.getElementById("anomalyRate").textContent =
+            `${stats.anomaly_rate}%`;
+
+        document.getElementById("coverageRate").textContent =
+            `${stats.alert_coverage_rate}%`;
+
+        document.getElementById("ruleWindows").textContent =
+            stats.rule_alert_windows;
+
+        document.getElementById("overlapWindows").textContent =
+            stats.overlapping_windows;
+
+        document.getElementById("mlOverlap").textContent =
+            `${stats.anomaly_overlap_rate}%`;
+
+        document.getElementById("ruleCoverage").textContent =
+            `${stats.alert_coverage_rate}%`;
+
+        const patternTable =
+            document.getElementById("patternTable");
+
+        patternTable.innerHTML = "";
+
+        Object.entries(stats.anomaly_patterns)
+            .sort((a, b) => b[1] - a[1])
+            .forEach(([pattern, count]) => {
+                patternTable.innerHTML += `
+                    <tr>
+                        <td>${escapeHtml(pattern)}</td>
+                        <td>${count}</td>
+                    </tr>
+                `;
+            });
+
+        const attackTable =
+            document.getElementById("attackTable");
+
+        attackTable.innerHTML = "";
+
+        Object.entries(stats.attack_overlap)
+            .forEach(([attack, data]) => {
+                attackTable.innerHTML += `
+                    <tr>
+                        <td>${escapeHtml(attack)}</td>
+                        <td>${data.matched}</td>
+                        <td>${data.total}</td>
+                        <td>${data.rate}%</td>
+                    </tr>
+                `;
+            });
+
+        const anomalyResponse =
+            await fetch(`${API}/ml/anomalies?limit=20`);
+
+        const anomalies = await anomalyResponse.json();
+
+        const anomalyTable =
+            document.getElementById("anomalyTable");
+
+        anomalyTable.innerHTML = "";
+
+        anomalies.forEach(item => {
+            anomalyTable.innerHTML += `
+                <tr>
+                    <td>${escapeHtml(item.window_start)}</td>
+                    <td>${escapeHtml(item.source_ip)}</td>
+                    <td>${item.packet_count}</td>
+                    <td>${item.tcp_syn_count}</td>
+                    <td>${item.udp_count}</td>
+                    <td>${item.icmp_count}</td>
+                    <td>${item.unique_destination_ports}</td>
+                    <td class="score">${Number(item.anomaly_score).toFixed(4)}</td>
+                    <td><span class="badge">${escapeHtml(item.prediction)}</span></td>
+                </tr>
+            `;
+        });
+
+        document.getElementById("status").textContent =
+            `Last update: ${new Date().toLocaleTimeString()}`;
+
+    } catch (error) {
+        document.getElementById("status").textContent =
+            `Error loading ML data: ${error.message}`;
+    }
+}
+
+loadML();
+setInterval(loadML, 5000);
+</script>
+
+</body>
+</html>

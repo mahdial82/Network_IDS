@@ -1,0 +1,78 @@
+NETWORK IDS FINAL EVALUATION REPORT
+============================================================
+
+Generated: 2026-09-21 18:21:00
+
+1. CONTROLLED DETECTION RESULTS
+------------------------------------------------------------
+Positive Tests: 6
+Detected Tests: 6
+Detection Rate: 100.00%
+Negative Tests: 1
+False Positive Tests: 0
+False Positive Rate: 0.00%
+
+2. OPERATIONAL DATABASE SNAPSHOT
+------------------------------------------------------------
+Total Packets: 208,994
+Total Bytes: 12,827,784
+Total Alerts: 74
+
+Attack Types:
+  PORT SCAN: 5
+  SYN FLOOD: 18
+  ICMP FLOOD: 23
+  UDP FLOOD: 5
+  SUSPICIOUS PORT: 20
+  BRUTE FORCE: 3
+
+Severity:
+  HIGH: 49
+  MEDIUM: 25
+  LOW: 0
+
+Status:
+  NEW: 73
+  ACKNOWLEDGED: 1
+  RESOLVED: 0
+
+Protocols:
+  ICMP: 81,975
+  UDP: 76,399
+  TCP: 49,027
+  ARP: 1,113
+  OTHER: 369
+  IPv4: 111
+
+3. PERFORMANCE RESULTS
+------------------------------------------------------------
+
+Run 1:
+  Duration: 30.41 sec
+  Processed Packets: 26,633
+  Average PPS: 875.93
+  Peak PPS: 3178.71
+  Average CPU: 39.91%
+  Peak CPU: 63.23%
+  Average RAM: 74.61 MB
+  Peak RAM: 76.19 MB
+  Database Size: 30,957,568 bytes
+  Exit Code: 0
+
+Load Test:
+  Duration: 30.35 sec
+  Processed Packets: 29,199
+  Average PPS: 962.21
+  Peak PPS: 3070.31
+  Average CPU: 43.14%
+  Peak CPU: 66.98%
+  Average RAM: 74.97 MB
+  Peak RAM: 76.60 MB
+  Database Size: 35,897,344 bytes
+  Exit Code: 0
+
+4. INTERPRETATION
+------------------------------------------------------------
+The controlled test set achieved a detection rate of 100.00% across 6 positive scenarios.
+The observed false positive rate was 0.00% across 1 negative scenarios.
+These controlled results should be interpreted within the scope of the tested VMware laboratory scenarios and should not be generalized to unobserved traffic conditions.

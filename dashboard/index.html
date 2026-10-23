@@ -1,0 +1,1920 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Network IDS Dashboard</title>
+
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: Arial, sans-serif;
+        background: #f1f5f9;
+        color: #0f172a;
+      }
+
+      header {
+        background: #0f172a;
+        color: white;
+        padding: 24px 32px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      header h1 {
+        font-size: 28px;
+      }
+
+      header p {
+        margin-top: 6px;
+        color: #94a3b8;
+      }
+
+      .system-status {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #22c55e;
+        font-weight: bold;
+      }
+
+      .status-dot {
+        width: 10px;
+        height: 10px;
+        background: #22c55e;
+        border-radius: 50%;
+      }
+
+      .container {
+        max-width: 1500px;
+        margin: 30px auto;
+        padding: 0 24px;
+      }
+
+      .cards {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 20px;
+        margin-bottom: 25px;
+      }
+
+      .card,
+      .traffic-card,
+      .panel,
+      .table-container {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+      }
+
+      .card {
+        padding: 24px;
+        border-left: 5px solid #2563eb;
+      }
+
+      .card.port {
+        border-left-color: #f59e0b;
+      }
+
+      .card.syn {
+        border-left-color: #ef4444;
+      }
+
+      .card.icmp {
+        border-left-color: #8b5cf6;
+      }
+
+      .card.udp {
+        border-left-color: #16a34a;
+      }
+
+      .card h3 {
+        color: #64748b;
+        font-size: 15px;
+        margin-bottom: 12px;
+      }
+
+      .value {
+        font-size: 38px;
+        font-weight: bold;
+      }
+
+      .subtitle {
+        margin-top: 8px;
+        color: #94a3b8;
+        font-size: 13px;
+      }
+
+      .section-title {
+        margin: 30px 0 20px;
+        font-size: 23px;
+      }
+
+      .traffic-cards {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+        margin-bottom: 25px;
+      }
+
+      .traffic-card {
+        padding: 22px;
+      }
+
+      .traffic-card h3 {
+        color: #64748b;
+        font-size: 14px;
+        margin-bottom: 10px;
+      }
+
+      .traffic-value {
+        font-size: 28px;
+        font-weight: bold;
+      }
+
+      .traffic-unit {
+        margin-top: 5px;
+        color: #94a3b8;
+        font-size: 12px;
+      }
+
+      .main-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 25px;
+        margin-bottom: 25px;
+      }
+
+      .panel {
+        padding: 24px;
+      }
+
+      .panel h2 {
+        margin-bottom: 20px;
+        font-size: 20px;
+      }
+
+      .chart-container {
+        width: 100%;
+        height: 320px;
+      }
+
+      svg {
+        width: 100%;
+        height: 100%;
+      }
+
+      .chart-label {
+        font-size: 11px;
+        fill: #64748b;
+      }
+
+      .legend {
+        display: flex;
+        gap: 25px;
+        margin-top: 15px;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+
+      .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        font-size: 14px;
+      }
+
+      .legend-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+      }
+
+      .port-dot {
+        background: #f59e0b;
+      }
+
+      .syn-dot {
+        background: #ef4444;
+      }
+
+      .icmp-dot {
+        background: #8b5cf6;
+      }
+
+      .udp-dot {
+        background: #16a34a;
+      }
+
+      .traffic-rate {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+      }
+
+      .pps-value {
+        font-size: 24px;
+        font-weight: bold;
+      }
+
+      .pps-label {
+        color: #64748b;
+        font-size: 14px;
+      }
+
+      .live {
+        color: #16a34a;
+        font-size: 14px;
+        font-weight: bold;
+      }
+
+      .protocol-list {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      .protocol-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .protocol-name {
+        font-weight: bold;
+      }
+
+      .protocol-count {
+        color: #475569;
+      }
+
+      .protocol-bar-container {
+        width: 100%;
+        height: 9px;
+        margin-top: 7px;
+        border-radius: 10px;
+        background: #e2e8f0;
+        overflow: hidden;
+      }
+
+      .protocol-bar {
+        height: 100%;
+        border-radius: 10px;
+        transition: width 0.5s;
+      }
+
+      .tcp-bar {
+        background: #2563eb;
+      }
+
+      .udp-bar {
+        background: #16a34a;
+      }
+
+      .icmp-bar {
+        background: #8b5cf6;
+      }
+
+      .arp-bar {
+        background: #f59e0b;
+      }
+
+      .top-talkers-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 25px;
+        margin-bottom: 25px;
+      }
+
+      .talker-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .talker-row {
+        display: grid;
+        grid-template-columns: 35px 1fr auto;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .talker-rank {
+        font-weight: bold;
+        color: #64748b;
+      }
+
+      .talker-ip {
+        font-weight: bold;
+        font-family: monospace;
+      }
+
+      .talker-count {
+        color: #475569;
+      }
+
+      .talker-bar-container {
+        grid-column: 2 / 4;
+        height: 7px;
+        border-radius: 10px;
+        background: #e2e8f0;
+        overflow: hidden;
+      }
+
+      .talker-bar {
+        height: 100%;
+        background: #2563eb;
+        border-radius: 10px;
+      }
+
+      .table-container {
+        padding: 24px;
+        overflow-x: auto;
+        margin-bottom: 25px;
+      }
+
+      .table-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+
+      .table-header h2 {
+        font-size: 20px;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      th,
+      td {
+        padding: 13px;
+        text-align: left;
+        border-bottom: 1px solid #e2e8f0;
+      }
+
+      th {
+        background: #f8fafc;
+        color: #475569;
+        font-size: 14px;
+      }
+
+      tr:hover {
+        background: #f8fafc;
+      }
+
+      .badge {
+        display: inline-block;
+        padding: 6px 10px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: bold;
+      }
+
+      .badge-port {
+        background: #fef3c7;
+        color: #b45309;
+      }
+
+      .badge-syn {
+        background: #fee2e2;
+        color: #b91c1c;
+      }
+
+      .badge-icmp {
+        background: #ede9fe;
+        color: #6d28d9;
+      }
+
+      .badge-udp {
+        background: #dcfce7;
+        color: #15803d;
+      }
+
+      .badge-high {
+        background: #fee2e2;
+        color: #b91c1c;
+      }
+
+      .badge-medium {
+        background: #fef3c7;
+        color: #b45309;
+      }
+
+      .badge-low {
+        background: #dcfce7;
+        color: #15803d;
+      }
+
+      .protocol-badge {
+        display: inline-block;
+        padding: 5px 9px;
+        border-radius: 5px;
+        font-size: 11px;
+        font-weight: bold;
+        background: #e2e8f0;
+        color: #334155;
+      }
+
+      .last-update {
+        margin-top: 15px;
+        text-align: right;
+        color: #94a3b8;
+        font-size: 12px;
+      }
+
+      .empty-message {
+        color: #94a3b8;
+        text-align: center;
+        padding: 20px;
+      }
+
+      .filter-panel {
+        background: white;
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+        margin-bottom: 25px;
+      }
+
+      .filter-panel h2 {
+        margin-bottom: 18px;
+      }
+
+      .filters {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 15px;
+      }
+
+      .filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+      }
+
+      .filter-group label {
+        font-size: 13px;
+        font-weight: bold;
+        color: #64748b;
+      }
+
+      .filter-group select,
+      .filter-group input {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #cbd5e1;
+        border-radius: 7px;
+        background: white;
+        color: #0f172a;
+      }
+
+      .filter-buttons {
+        display: flex;
+        align-items: end;
+        gap: 10px;
+        margin-top: 10px;
+      }
+
+      .btn {
+        border: none;
+        border-radius: 7px;
+        padding: 10px 15px;
+        cursor: pointer;
+        font-weight: bold;
+      }
+
+      .btn-filter {
+        background: #2563eb;
+        color: white;
+      }
+
+      .btn-reset {
+        background: #e2e8f0;
+        color: #334155;
+      }
+
+      .status-summary {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 15px;
+        margin-top: 20px;
+      }
+
+      .status-box {
+        padding: 16px;
+        border-radius: 9px;
+        text-align: center;
+      }
+
+      .status-box h3 {
+        font-size: 13px;
+        margin-bottom: 7px;
+      }
+
+      .status-number {
+        font-size: 28px;
+        font-weight: bold;
+      }
+
+      .status-new {
+        background: #fee2e2;
+        color: #b91c1c;
+      }
+
+      .status-ack {
+        background: #fef3c7;
+        color: #b45309;
+      }
+
+      .status-resolved {
+        background: #dcfce7;
+        color: #15803d;
+      }
+
+      .status-actions {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+      }
+
+      .status-btn {
+        border: none;
+        border-radius: 5px;
+        padding: 5px 8px;
+        font-size: 11px;
+        cursor: pointer;
+        font-weight: bold;
+      }
+
+      .status-btn-ack {
+        background: #fef3c7;
+        color: #92400e;
+      }
+
+      .status-btn-resolve {
+        background: #dcfce7;
+        color: #166534;
+      }
+
+      .status-btn-new {
+        background: #fee2e2;
+        color: #991b1b;
+      }
+
+      .status-new-badge {
+        background: #fee2e2;
+        color: #b91c1c;
+      }
+
+      .status-ack-badge {
+        background: #fef3c7;
+        color: #b45309;
+      }
+
+      .status-resolved-badge {
+        background: #dcfce7;
+        color: #15803d;
+      }
+
+      @media (max-width: 1200px) {
+        .cards {
+          grid-template-columns: repeat(3, 1fr);
+        }
+
+        .main-grid,
+        .top-talkers-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 900px) {
+        .cards,
+        .traffic-cards {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+
+      @media (max-width: 600px) {
+        .cards,
+        .traffic-cards {
+          grid-template-columns: 1fr;
+        }
+
+        header {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 15px;
+        }
+      }
+    </style>
+<style id="nids-ml-extension-style">
+.nids-ml-extension{margin:24px 0;padding:20px;border:1px solid #334155;border-radius:14px;background:#0f172a;color:#e2e8f0}
+.nids-ml-head{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:16px}
+.nids-ml-head h2{margin:0;font-size:20px}
+.nids-ml-head p{margin:4px 0 0;color:#94a3b8;font-size:13px}
+.nids-ml-link{display:inline-block;padding:9px 14px;border-radius:8px;text-decoration:none;background:#2563eb;color:#fff;font-size:13px}
+.nids-ml-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.nids-ml-card{padding:14px;border:1px solid #334155;border-radius:10px;background:#1e293b}
+.nids-ml-label{font-size:12px;color:#94a3b8;margin-bottom:7px}
+.nids-ml-value{font-size:24px;font-weight:700}
+.nids-ml-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.nids-ml-table{width:100%;border-collapse:collapse}
+.nids-ml-table th,.nids-ml-table td{padding:9px 7px;border-bottom:1px solid #334155;text-align:left;font-size:12px}
+.nids-ml-table th{color:#94a3b8}
+.nids-ml-status{margin-top:12px;color:#94a3b8;font-size:12px}
+@media (max-width:900px){.nids-ml-cards{grid-template-columns:repeat(2,1fr)}.nids-ml-grid{grid-template-columns:1fr}}
+@media (max-width:600px){.nids-ml-cards{grid-template-columns:1fr}.nids-ml-head{align-items:flex-start;flex-direction:column}}
+</style>
+
+  
+<style>
+.ml-section table,
+.ml-section th,
+.ml-section td {
+    background: #1e293b !important;
+    color: #e2e8f0 !important;
+}
+
+.ml-section th {
+    background: #243244 !important;
+    color: #94a3b8 !important;
+}
+
+.ml-section td {
+    border-bottom: 1px solid #334155 !important;
+}
+
+.ml-section .ml-panel {
+    background: #1e293b !important;
+    border: 1px solid #334155 !important;
+    color: #e2e8f0 !important;
+}
+
+.ml-section .ml-value {
+    color: #e2e8f0 !important;
+}
+</style>
+
+</head>
+
+  <body>
+<!-- NIDS_ML_EXTENSION -->
+<section class="nids-ml-extension ml-section" id="nidsMlSection">
+  <div class="nids-ml-head">
+    <div>
+      <h2>Machine Learning Anomaly Detection</h2>
+      <p>Isolation Forest analysis of 5-second traffic windows</p>
+    </div>
+    <a class="nids-ml-link" href="ml.html">Open ML Dashboard</a>
+  </div>
+  <div class="nids-ml-cards">
+    <div class="nids-ml-card"><div class="nids-ml-label">Feature Windows</div><div class="nids-ml-value" id="nidsMlFeatureWindows">-</div></div>
+    <div class="nids-ml-card"><div class="nids-ml-label">ML Anomalies</div><div class="nids-ml-value" id="nidsMlAnomalies">-</div></div>
+    <div class="nids-ml-card"><div class="nids-ml-label">Anomaly Rate</div><div class="nids-ml-value" id="nidsMlRate">-</div></div>
+    <div class="nids-ml-card"><div class="nids-ml-label">Rule → ML Coverage</div><div class="nids-ml-value" id="nidsMlCoverage">-</div></div>
+  </div>
+  <div class="nids-ml-grid">
+    <table class="nids-ml-table">
+      <tbody>
+        <tr><th>Rule Alert Windows</th><td id="nidsMlRuleWindows">-</td></tr>
+        <tr><th>Overlapping Windows</th><td id="nidsMlOverlap">-</td></tr>
+        <tr><th>ML → Rule Overlap</th><td id="nidsMlAnomalyOverlap">-</td></tr>
+      </tbody>
+    </table>
+    <table class="nids-ml-table">
+      <thead><tr><th>Pattern</th><th>Windows</th></tr></thead>
+      <tbody id="nidsMlPatterns"></tbody>
+    </table>
+  </div>
+  <div class="nids-ml-status" id="nidsMlStatus">Loading ML data...</div>
+</section>
+<script id="nids-ml-extension-script">
+(async function(){
+  const api='http://127.0.0.1:8000';
+  const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};
+  const esc=v=>String(v).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;');
+  async function load(){
+    try{
+      const response=await fetch(api+'/ml/stats');
+      const data=await response.json();
+      set('nidsMlFeatureWindows',data.feature_windows);
+      set('nidsMlAnomalies',data.anomaly_windows);
+      set('nidsMlRate',data.anomaly_rate+'%');
+      set('nidsMlCoverage',data.alert_coverage_rate+'%');
+      set('nidsMlRuleWindows',data.rule_alert_windows);
+      set('nidsMlOverlap',data.overlapping_windows);
+      set('nidsMlAnomalyOverlap',data.anomaly_overlap_rate+'%');
+      const body=document.getElementById('nidsMlPatterns');
+      body.innerHTML='';
+      Object.entries(data.anomaly_patterns).sort((a,b)=>b[1]-a[1]).forEach(([name,count])=>{
+        body.innerHTML+=`<tr><td>${esc(name)}</td><td>${count}</td></tr>`;
+      });
+      set('nidsMlStatus','Last update: '+new Date().toLocaleTimeString());
+    }catch(error){
+      set('nidsMlStatus','ML data unavailable: '+error.message);
+    }
+  }
+  load();
+  setInterval(load,5000);
+})();
+</script>
+
+    <header>
+      <div>
+        <h1>NETWORK IDS DASHBOARD</h1>
+        <p>Network Intrusion Detection System</p>
+      </div>
+
+      <div class="system-status">
+        <span class="status-dot"></span>
+        System Online
+      </div>
+    </header>
+
+    <div class="container">
+      <div class="cards">
+        <div class="card">
+          <h3>Total Alerts</h3>
+          <div class="value" id="total-alerts">0</div>
+          <div class="subtitle">Detected security events</div>
+        </div>
+
+        <div class="card port">
+          <h3>Port Scan</h3>
+          <div class="value" id="port-scan">0</div>
+          <div class="subtitle">Port scan detections</div>
+        </div>
+
+        <div class="card syn">
+          <h3>SYN Flood</h3>
+          <div class="value" id="syn-flood">0</div>
+          <div class="subtitle">TCP SYN flood detections</div>
+        </div>
+
+        <div class="card icmp">
+          <h3>ICMP Flood</h3>
+          <div class="value" id="icmp-flood">0</div>
+          <div class="subtitle">ICMP flood detections</div>
+        </div>
+
+        <div class="card udp">
+          <h3>UDP Flood</h3>
+          <div class="value" id="udp-flood">0</div>
+          <div class="subtitle">UDP flood detections</div>
+        </div>
+      </div>
+
+      <h2 class="section-title">Traffic Monitoring</h2>
+
+      <div class="traffic-cards">
+        <div class="traffic-card">
+          <h3>Total Packets</h3>
+          <div class="traffic-value" id="total-packets">0</div>
+          <div class="traffic-unit">Packets captured</div>
+        </div>
+
+        <div class="traffic-card">
+          <h3>Total Traffic</h3>
+          <div class="traffic-value" id="total-bytes">0</div>
+          <div class="traffic-unit">Bytes captured</div>
+        </div>
+
+        <div class="traffic-card">
+          <h3>Active IPs</h3>
+          <div class="traffic-value" id="unique-ips">0</div>
+          <div class="traffic-unit">Unique IP addresses</div>
+        </div>
+
+        <div class="traffic-card">
+          <h3>TCP Packets</h3>
+          <div class="traffic-value" id="tcp-packets">0</div>
+          <div class="traffic-unit">TCP packets</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel">
+          <h2>Attack Statistics</h2>
+
+          <div class="chart-container">
+            <svg
+              id="attack-chart"
+              viewBox="0 0 800 300"
+              preserveAspectRatio="none"
+            ></svg>
+          </div>
+
+          <div class="legend">
+            <div class="legend-item">
+              <span class="legend-dot port-dot"></span>
+              Port Scan
+            </div>
+
+            <div class="legend-item">
+              <span class="legend-dot syn-dot"></span>
+              SYN Flood
+            </div>
+
+            <div class="legend-item">
+              <span class="legend-dot icmp-dot"></span>
+              ICMP Flood
+            </div>
+
+            <div class="legend-item">
+              <span class="legend-dot udp-dot"></span>
+              UDP Flood
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h2>Protocol Statistics</h2>
+
+          <div class="protocol-list">
+            <div>
+              <div class="protocol-row">
+                <span class="protocol-name">TCP</span>
+                <span class="protocol-count" id="tcp-count">0</span>
+              </div>
+
+              <div class="protocol-bar-container">
+                <div class="protocol-bar tcp-bar" id="tcp-bar"></div>
+              </div>
+            </div>
+
+            <div>
+              <div class="protocol-row">
+                <span class="protocol-name">UDP</span>
+                <span class="protocol-count" id="udp-count">0</span>
+              </div>
+
+              <div class="protocol-bar-container">
+                <div class="protocol-bar udp-bar" id="udp-bar"></div>
+              </div>
+            </div>
+
+            <div>
+              <div class="protocol-row">
+                <span class="protocol-name">ICMP</span>
+                <span class="protocol-count" id="icmp-count">0</span>
+              </div>
+
+              <div class="protocol-bar-container">
+                <div class="protocol-bar icmp-bar" id="icmp-bar"></div>
+              </div>
+            </div>
+
+            <div>
+              <div class="protocol-row">
+                <span class="protocol-name">ARP</span>
+                <span class="protocol-count" id="arp-count">0</span>
+              </div>
+
+              <div class="protocol-bar-container">
+                <div class="protocol-bar arp-bar" id="arp-bar"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel">
+          <h2>Live Traffic Rate</h2>
+
+          <div class="traffic-rate">
+            <div>
+              <div class="pps-value" id="current-pps">0</div>
+              <div class="pps-label">Packets / second</div>
+            </div>
+
+            <div class="live">● LIVE</div>
+          </div>
+
+          <div class="chart-container">
+            <svg
+              id="traffic-chart"
+              viewBox="0 0 800 300"
+              preserveAspectRatio="none"
+            ></svg>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h2>Traffic Overview</h2>
+
+          <div class="protocol-list">
+            <div class="protocol-row">
+              <span>Total Packets</span>
+              <strong id="overview-packets">0</strong>
+            </div>
+
+            <div class="protocol-row">
+              <span>Total Bytes</span>
+              <strong id="overview-bytes">0</strong>
+            </div>
+
+            <div class="protocol-row">
+              <span>Active IPs</span>
+              <strong id="overview-ips">0</strong>
+            </div>
+
+            <div class="protocol-row">
+              <span>Current PPS</span>
+              <strong id="overview-pps">0</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="top-talkers-grid">
+        <div class="panel">
+          <h2>Top Source IPs</h2>
+
+          <div class="talker-list" id="top-sources"></div>
+        </div>
+
+        <div class="panel">
+          <h2>Top Destination IPs</h2>
+
+          <div class="talker-list" id="top-destinations"></div>
+        </div>
+      </div>
+
+      <div class="table-container">
+        <div class="table-header">
+          <h2>Recent Network Traffic</h2>
+
+          <div class="live">● LIVE</div>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Timestamp</th>
+              <th>Source IP</th>
+              <th>Target IP</th>
+              <th>Protocol</th>
+              <th>Source Port</th>
+              <th>Destination Port</th>
+              <th>Length</th>
+            </tr>
+          </thead>
+
+          <tbody id="traffic-table"></tbody>
+        </table>
+      </div>
+
+      <div class="filter-panel">
+        <h2>Aleّrt Management</h2>
+
+        <div class="filters">
+          <div class="filter-group">
+            <label for="filter-attack"> Attack Type </label>
+
+            <select id="filter-attack">
+              <option value="">All Attacks</option>
+
+              <option value="PORT SCAN">Port Scan</option>
+
+              <option value="SYN FLOOD">SYN Flood</option>
+
+              <option value="ICMP FLOOD">ICMP Flood</option>
+
+              <option value="UDP FLOOD">UDP Flood</option>
+
+              <option value="SUSPICIOUS PORT">Suspicious Port</option>
+
+              <option value="BRUTE FORCE">Brute Force</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label for="filter-severity"> Severity </label>
+
+            <select id="filter-severity">
+              <option value="">All Severities</option>
+
+              <option value="HIGH">HIGH</option>
+
+              <option value="MEDIUM">MEDIUM</option>
+
+              <option value="LOW">LOW</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label for="filter-status"> Status </label>
+
+            <select id="filter-status">
+              <option value="">All Statuses</option>
+
+              <option value="NEW">NEW</option>
+
+              <option value="ACKNOWLEDGED">ACKNOWLEDGED</option>
+
+              <option value="RESOLVED">RESOLVED</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label for="filter-source"> Source IP </label>
+
+            <input
+              id="filter-source"
+              type="text"
+              placeholder="192.168.100.10"
+            />
+          </div>
+        </div>
+
+        <div class="filter-buttons">
+          <button class="btn btn-filter" onclick="applyFilters()">
+            Apply Filter
+          </button>
+
+          <button class="btn btn-reset" onclick="resetFilters()">Reset</button>
+        </div>
+
+        <div class="status-summary">
+          <div class="status-box status-new">
+            <h3>NEW</h3>
+
+            <div class="status-number" id="status-new">0</div>
+          </div>
+
+          <div class="status-box status-ack">
+            <h3>ACKNOWLEDGED</h3>
+
+            <div class="status-number" id="status-ack">0</div>
+          </div>
+
+          <div class="status-box status-resolved">
+            <h3>RESOLVED</h3>
+
+            <div class="status-number" id="status-resolved">0</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-container">
+        <div class="table-header">
+          <h2>Recent Security Alerts</h2>
+
+          <div class="live">● LIVE</div>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Timestamp</th>
+              <th>Attack Type</th>
+              <th>Severity</th>
+              <th>Status</th>
+              <th>Source IP</th>
+              <th>Target IP</th>
+              <th>Count</th>
+              <th>Details</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+
+          <tbody id="alerts-table"></tbody>
+        </table>
+
+        <div class="last-update">
+          Last update:
+          <span id="last-update">-</span>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const API = "http://127.0.0.1:8000";
+
+      let previousPacketCount = null;
+      let trafficHistory = [];
+      let trafficLabels = [];
+
+      async function loadAlertStats() {
+        const response = await fetch(API + "/stats");
+
+        const data = await response.json();
+
+        document.getElementById("total-alerts").textContent = data.total_alerts;
+
+        document.getElementById("port-scan").textContent = data.port_scan;
+
+        document.getElementById("syn-flood").textContent = data.syn_flood;
+
+        document.getElementById("icmp-flood").textContent = data.icmp_flood;
+
+        document.getElementById("udp-flood").textContent = data.udp_flood;
+      }
+
+      async function loadTrafficStats() {
+        const response = await fetch(API + "/traffic/stats");
+
+        const data = await response.json();
+
+        document.getElementById("total-packets").textContent =
+          data.total_packets.toLocaleString();
+
+        document.getElementById("total-bytes").textContent =
+          data.total_bytes.toLocaleString();
+
+        document.getElementById("unique-ips").textContent = data.unique_ips;
+
+        document.getElementById("tcp-packets").textContent =
+          data.tcp.toLocaleString();
+
+        document.getElementById("tcp-count").textContent =
+          data.tcp.toLocaleString();
+
+        document.getElementById("udp-count").textContent =
+          data.udp.toLocaleString();
+
+        document.getElementById("icmp-count").textContent =
+          data.icmp.toLocaleString();
+
+        document.getElementById("arp-count").textContent =
+          data.arp.toLocaleString();
+
+        const maxProtocol = Math.max(
+          data.tcp,
+          data.udp,
+          data.icmp,
+          data.arp,
+          1,
+        );
+
+        document.getElementById("tcp-bar").style.width =
+          (data.tcp / maxProtocol) * 100 + "%";
+
+        document.getElementById("udp-bar").style.width =
+          (data.udp / maxProtocol) * 100 + "%";
+
+        document.getElementById("icmp-bar").style.width =
+          (data.icmp / maxProtocol) * 100 + "%";
+
+        document.getElementById("arp-bar").style.width =
+          (data.arp / maxProtocol) * 100 + "%";
+
+        if (previousPacketCount !== null) {
+          const delta = Math.max(0, data.total_packets - previousPacketCount);
+
+          const pps = delta / 3;
+
+          document.getElementById("current-pps").textContent = pps.toFixed(1);
+
+          document.getElementById("overview-pps").textContent = pps.toFixed(1);
+
+          trafficHistory.push(pps);
+
+          trafficLabels.push(new Date().toLocaleTimeString());
+
+          if (trafficHistory.length > 20) {
+            trafficHistory.shift();
+            trafficLabels.shift();
+          }
+
+          drawTrafficChart();
+        }
+
+        previousPacketCount = data.total_packets;
+
+        document.getElementById("overview-packets").textContent =
+          data.total_packets.toLocaleString();
+
+        document.getElementById("overview-bytes").textContent =
+          data.total_bytes.toLocaleString();
+
+        document.getElementById("overview-ips").textContent = data.unique_ips;
+      }
+
+      async function loadTopTalkers() {
+        const response = await fetch(API + "/traffic/top-talkers");
+
+        const data = await response.json();
+
+        drawTalkers("top-sources", data.sources, "packets");
+
+        drawTalkers("top-destinations", data.destinations, "packets");
+      }
+
+      function drawTalkers(elementId, items, field) {
+        const container = document.getElementById(elementId);
+
+        container.innerHTML = "";
+
+        if (!items || items.length === 0) {
+          container.innerHTML =
+            '<div class="empty-message">No data available</div>';
+
+          return;
+        }
+
+        const maxValue = Math.max(...items.map((item) => item[field]), 1);
+
+        items.forEach((item, index) => {
+          const row = document.createElement("div");
+
+          row.className = "talker-row";
+
+          const percentage = (item[field] / maxValue) * 100;
+
+          row.innerHTML = `
+                <div class="talker-rank">
+                    ${index + 1}
+                </div>
+
+                <div class="talker-ip">
+                    ${item.ip}
+                </div>
+
+                <div class="talker-count">
+                    ${item[field].toLocaleString()}
+                </div>
+
+                <div class="talker-bar-container">
+                    <div
+                        class="talker-bar"
+                        style="width:${percentage}%">
+                    </div>
+                </div>
+            `;
+
+          container.appendChild(row);
+        });
+      }
+
+      async function loadAlerts() {
+        const query = buildAlertQuery();
+
+        const response = await fetch(API + "/alerts?" + query);
+
+        const alerts = await response.json();
+
+        const table = document.getElementById("alerts-table");
+
+        table.innerHTML = "";
+
+        if (!alerts.length) {
+          table.innerHTML = `
+            <tr>
+                <td
+                    colspan="10"
+                    class="empty-message">
+                    No alerts match the selected filters
+                </td>
+            </tr>
+        `;
+
+          return;
+        }
+
+        alerts.forEach((alert) => {
+          const row = document.createElement("tr");
+
+          let attackBadge = "badge-port";
+
+          if (alert.attack_type === "PORT SCAN") {
+            attackBadge = "badge-port";
+          }
+
+          if (alert.attack_type === "SYN FLOOD") {
+            attackBadge = "badge-syn";
+          }
+
+          if (alert.attack_type === "ICMP FLOOD") {
+            attackBadge = "badge-icmp";
+          }
+
+          if (alert.attack_type === "UDP FLOOD") {
+            attackBadge = "badge-udp";
+          }
+
+          if (alert.attack_type === "SUSPICIOUS PORT") {
+            attackBadge = "badge-port";
+          }
+
+          if (alert.attack_type === "BRUTE FORCE") {
+            attackBadge = "badge-syn";
+          }
+
+          let severityBadge = "badge-medium";
+
+          if (alert.severity === "HIGH") {
+            severityBadge = "badge-high";
+          }
+
+          if (alert.severity === "MEDIUM") {
+            severityBadge = "badge-medium";
+          }
+
+          if (alert.severity === "LOW") {
+            severityBadge = "badge-low";
+          }
+
+          let statusBadge = "status-new-badge";
+
+          if (alert.status === "ACKNOWLEDGED") {
+            statusBadge = "status-ack-badge";
+          }
+
+          if (alert.status === "RESOLVED") {
+            statusBadge = "status-resolved-badge";
+          }
+
+          row.innerHTML = `
+                <td>${alert.id}</td>
+
+                <td>${alert.timestamp}</td>
+
+                <td>
+                    <span
+                        class="badge ${attackBadge}">
+                        ${alert.attack_type}
+                    </span>
+                </td>
+
+                <td>
+                    <span
+                        class="badge ${severityBadge}">
+                        ${alert.severity || "UNKNOWN"}
+                    </span>
+                </td>
+
+                <td>
+                    <span
+                        class="badge ${statusBadge}">
+                        ${alert.status || "NEW"}
+                    </span>
+                </td>
+
+                <td>${alert.source_ip}</td>
+
+                <td>${alert.target_ip}</td>
+
+                <td>${alert.count}</td>
+
+                <td>${alert.details || ""}</td>
+
+                <td>
+
+                    <div class="status-actions">
+
+                        <button
+                            class="status-btn status-btn-new"
+                            onclick="changeAlertStatus(
+                                ${alert.id},
+                                'NEW'
+                            )">
+                            NEW
+                        </button>
+
+                        <button
+                            class="status-btn status-btn-ack"
+                            onclick="changeAlertStatus(
+                                ${alert.id},
+                                'ACKNOWLEDGED'
+                            )">
+                            ACK
+                        </button>
+
+                        <button
+                            class="status-btn status-btn-resolve"
+                            onclick="changeAlertStatus(
+                                ${alert.id},
+                                'RESOLVED'
+                            )">
+                            RESOLVE
+                        </button>
+
+                    </div>
+
+                </td>
+            `;
+
+          table.appendChild(row);
+        });
+      }
+
+      async function loadTraffic() {
+        const response = await fetch(API + "/traffic/recent");
+
+        const traffic = await response.json();
+
+        const table = document.getElementById("traffic-table");
+
+        table.innerHTML = "";
+
+        if (!traffic || traffic.length === 0) {
+          table.innerHTML = `
+            <tr>
+                <td colspan="7" class="empty-message">
+                    No traffic data available
+                </td>
+            </tr>
+        `;
+
+          return;
+        }
+
+        traffic.forEach((packet) => {
+          const row = document.createElement("tr");
+
+          row.innerHTML = `
+                <td>${packet.timestamp || ""}</td>
+
+                <td>${packet.src_ip || ""}</td>
+
+                <td>${packet.dst_ip || ""}</td>
+
+                <td>
+                    <span class="protocol-badge">
+                        ${packet.protocol || ""}
+                    </span>
+                </td>
+
+                <td>${packet.src_port || ""}</td>
+
+                <td>${packet.dst_port || ""}</td>
+
+                <td>${packet.length || ""}</td>
+            `;
+
+          table.appendChild(row);
+        });
+      }
+
+      async function loadAttackChart() {
+        const response = await fetch(API + "/alerts");
+
+        const alerts = await response.json();
+
+        const buckets = {};
+
+        alerts.forEach((alert) => {
+          const minute = alert.timestamp.substring(0, 16);
+
+          if (!buckets[minute]) {
+            buckets[minute] = {
+              port: 0,
+              syn: 0,
+              icmp: 0,
+              udp: 0,
+            };
+          }
+
+          if (alert.attack_type === "PORT SCAN") {
+            buckets[minute].port++;
+          }
+
+          if (alert.attack_type === "SYN FLOOD") {
+            buckets[minute].syn++;
+          }
+
+          if (alert.attack_type === "ICMP FLOOD") {
+            buckets[minute].icmp++;
+          }
+
+          if (alert.attack_type === "UDP FLOOD") {
+            buckets[minute].udp++;
+          }
+        });
+
+        const labels = Object.keys(buckets).sort().slice(-15);
+
+        const portData = labels.map((x) => buckets[x].port);
+
+        const synData = labels.map((x) => buckets[x].syn);
+
+        const icmpData = labels.map((x) => buckets[x].icmp);
+
+        const udpData = labels.map((x) => buckets[x].udp);
+
+        drawAttackChart(labels, portData, synData, icmpData, udpData);
+      }
+
+      function drawAttackChart(labels, portData, synData, icmpData, udpData) {
+        const svg = document.getElementById("attack-chart");
+
+        svg.innerHTML = "";
+
+        const width = 800;
+        const height = 300;
+
+        const paddingLeft = 45;
+        const paddingRight = 20;
+        const paddingTop = 20;
+        const paddingBottom = 35;
+
+        const chartWidth = width - paddingLeft - paddingRight;
+
+        const chartHeight = height - paddingTop - paddingBottom;
+
+        const allValues = [...portData, ...synData, ...icmpData, ...udpData];
+
+        let maxValue = Math.max(...allValues, 1);
+
+        maxValue = Math.ceil(maxValue / 2) * 2;
+
+        for (let i = 0; i <= 5; i++) {
+          const y = paddingTop + chartHeight - (i / 5) * chartHeight;
+
+          const value = Math.round((i / 5) * maxValue);
+
+          const line = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "line",
+          );
+
+          line.setAttribute("x1", paddingLeft);
+
+          line.setAttribute("x2", width - paddingRight);
+
+          line.setAttribute("y1", y);
+
+          line.setAttribute("y2", y);
+
+          line.setAttribute("stroke", "#e2e8f0");
+
+          svg.appendChild(line);
+
+          const text = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "text",
+          );
+
+          text.setAttribute("x", 5);
+
+          text.setAttribute("y", y + 4);
+
+          text.setAttribute("class", "chart-label");
+
+          text.textContent = value;
+
+          svg.appendChild(text);
+        }
+
+        if (labels.length === 0) {
+          const text = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "text",
+          );
+
+          text.setAttribute("x", width / 2 - 50);
+
+          text.setAttribute("y", height / 2);
+
+          text.setAttribute("class", "chart-label");
+
+          text.textContent = "No attack data";
+
+          svg.appendChild(text);
+
+          return;
+        }
+
+        const xStep =
+          labels.length === 1 ? 0 : chartWidth / (labels.length - 1);
+
+        labels.forEach((label, index) => {
+          const x = paddingLeft + index * xStep;
+
+          const text = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "text",
+          );
+
+          text.setAttribute("x", x);
+
+          text.setAttribute("y", height - 10);
+
+          text.setAttribute("text-anchor", "middle");
+
+          text.setAttribute("class", "chart-label");
+
+          text.textContent = label.substring(11);
+
+          svg.appendChild(text);
+        });
+
+        drawLine(portData, "#f59e0b");
+
+        drawLine(synData, "#ef4444");
+
+        drawLine(icmpData, "#8b5cf6");
+
+        drawLine(udpData, "#16a34a");
+
+        function drawLine(data, color) {
+          if (!data.length) {
+            return;
+          }
+
+          let points = "";
+
+          data.forEach((value, index) => {
+            const x = paddingLeft + index * xStep;
+
+            const y =
+              paddingTop + chartHeight - (value / maxValue) * chartHeight;
+
+            points += `${x},${y} `;
+          });
+
+          const polyline = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "polyline",
+          );
+
+          polyline.setAttribute("points", points);
+
+          polyline.setAttribute("fill", "none");
+
+          polyline.setAttribute("stroke", color);
+
+          polyline.setAttribute("stroke-width", "3");
+
+          polyline.setAttribute("stroke-linejoin", "round");
+
+          polyline.setAttribute("stroke-linecap", "round");
+
+          svg.appendChild(polyline);
+
+          data.forEach((value, index) => {
+            const x = paddingLeft + index * xStep;
+
+            const y =
+              paddingTop + chartHeight - (value / maxValue) * chartHeight;
+
+            const circle = document.createElementNS(
+              "http://www.w3.org/2000/svg",
+              "circle",
+            );
+
+            circle.setAttribute("cx", x);
+
+            circle.setAttribute("cy", y);
+
+            circle.setAttribute("r", "4");
+
+            circle.setAttribute("fill", color);
+
+            svg.appendChild(circle);
+          });
+        }
+      }
+
+      function drawTrafficChart() {
+        const svg = document.getElementById("traffic-chart");
+
+        svg.innerHTML = "";
+
+        if (trafficHistory.length < 2) {
+          return;
+        }
+
+        const width = 800;
+        const height = 300;
+
+        const paddingLeft = 45;
+        const paddingRight = 20;
+        const paddingTop = 20;
+        const paddingBottom = 35;
+
+        const chartWidth = width - paddingLeft - paddingRight;
+
+        const chartHeight = height - paddingTop - paddingBottom;
+
+        const maxValue = Math.max(...trafficHistory, 1);
+
+        for (let i = 0; i <= 5; i++) {
+          const y = paddingTop + chartHeight - (i / 5) * chartHeight;
+
+          const value = Math.round((i / 5) * maxValue);
+
+          const line = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "line",
+          );
+
+          line.setAttribute("x1", paddingLeft);
+
+          line.setAttribute("x2", width - paddingRight);
+
+          line.setAttribute("y1", y);
+
+          line.setAttribute("y2", y);
+
+          line.setAttribute("stroke", "#e2e8f0");
+
+          svg.appendChild(line);
+
+          const text = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "text",
+          );
+
+          text.setAttribute("x", 5);
+
+          text.setAttribute("y", y + 4);
+
+          text.setAttribute("class", "chart-label");
+
+          text.textContent = value;
+
+          svg.appendChild(text);
+        }
+
+        const xStep =
+          trafficHistory.length === 1
+            ? 0
+            : chartWidth / (trafficHistory.length - 1);
+
+        let points = "";
+
+        trafficHistory.forEach((value, index) => {
+          const x = paddingLeft + index * xStep;
+
+          const y = paddingTop + chartHeight - (value / maxValue) * chartHeight;
+
+          points += `${x},${y} `;
+        });
+
+        const polyline = document.createElementNS(
+          "http://www.w3.org/2000/svg",
+          "polyline",
+        );
+
+        polyline.setAttribute("points", points);
+
+        polyline.setAttribute("fill", "none");
+
+        polyline.setAttribute("stroke", "#2563eb");
+
+        polyline.setAttribute("stroke-width", "3");
+
+        polyline.setAttribute("stroke-linejoin", "round");
+
+        svg.appendChild(polyline);
+
+        trafficHistory.forEach((value, index) => {
+          const x = paddingLeft + index * xStep;
+
+          const y = paddingTop + chartHeight - (value / maxValue) * chartHeight;
+
+          const circle = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "circle",
+          );
+
+          circle.setAttribute("cx", x);
+
+          circle.setAttribute("cy", y);
+
+          circle.setAttribute("r", "4");
+
+          circle.setAttribute("fill", "#2563eb");
+
+          svg.appendChild(circle);
+        });
+      }
+
+      let alertFilters = {
+        attack_type: "",
+        severity: "",
+        status: "",
+        source_ip: "",
+      };
+
+      function buildAlertQuery() {
+        const params = new URLSearchParams();
+
+        if (alertFilters.attack_type) {
+          params.set("attack_type", alertFilters.attack_type);
+        }
+
+        if (alertFilters.severity) {
+          params.set("severity", alertFilters.severity);
+        }
+
+        if (alertFilters.status) {
+          params.set("status", alertFilters.status);
+        }
+
+        if (alertFilters.source_ip) {
+          params.set("source_ip", alertFilters.source_ip);
+        }
+
+        params.set("limit", "100");
+
+        return params.toString();
+      }
+
+      function applyFilters() {
+        alertFilters.attack_type =
+          document.getElementById("filter-attack").value;
+
+        alertFilters.severity =
+          document.getElementById("filter-severity").value;
+
+        alertFilters.status = document.getElementById("filter-status").value;
+
+        alertFilters.source_ip = document
+          .getElementById("filter-source")
+          .value.trim();
+
+        loadAlerts();
+      }
+
+      function resetFilters() {
+        document.getElementById("filter-attack").value = "";
+
+        document.getElementById("filter-severity").value = "";
+
+        document.getElementById("filter-status").value = "";
+
+        document.getElementById("filter-source").value = "";
+
+        alertFilters = {
+          attack_type: "",
+          severity: "",
+          status: "",
+          source_ip: "",
+        };
+
+        loadAlerts();
+      }
+
+      async function loadAlertStatus() {
+        const response = await fetch(API + "/alert-status");
+
+        const data = await response.json();
+
+        document.getElementById("status-new").textContent = data.NEW;
+
+        document.getElementById("status-ack").textContent = data.ACKNOWLEDGED;
+
+        document.getElementById("status-resolved").textContent = data.RESOLVED;
+      }
+
+      async function changeAlertStatus(alertId, newStatus) {
+        const response = await fetch(
+          API +
+            "/alerts/" +
+            alertId +
+            "/status?status=" +
+            encodeURIComponent(newStatus),
+          {
+            method: "PATCH",
+          },
+        );
+
+        if (!response.ok) {
+          console.error("Failed to update alert status");
+
+          return;
+        }
+
+        await loadAlertStatus();
+        await loadAlerts();
+      }
+
+      async function updateDashboard() {
+        try {
+          await loadAlertStats();
+          await loadAlertStatus();
+          await loadTrafficStats();
+          await loadTopTalkers();
+          await loadAlerts();
+          await loadTraffic();
+          await loadAttackChart();
+
+          document.getElementById("last-update").textContent =
+            new Date().toLocaleTimeString();
+        } catch (error) {
+          console.error("Dashboard error:", error);
+        }
+      }
+
+      updateDashboard();
+
+      setInterval(updateDashboard, 3000);
+    </script>
+  </body>
+</html>

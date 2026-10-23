@@ -1,0 +1,37 @@
+NETWORK IDS EVALUATION REPORT
+==================================================
+
+Total Packets : 118,566
+Total Bytes   : 7,386,107
+Average PPS   : 0.58
+Database Size : 20,488,192 bytes
+
+PROTOCOL STATISTICS
+--------------------------------------------------
+UDP: 61,825
+TCP: 40,882
+ICMP: 14,386
+ARP: 1,018
+OTHER: 349
+IPv4: 106
+
+ALERT STATISTICS
+--------------------------------------------------
+PORT SCAN: 4
+SYN FLOOD: 16
+ICMP FLOOD: 19
+UDP FLOOD: 4
+SUSPICIOUS PORT: 11
+BRUTE FORCE: 2
+
+SEVERITY
+--------------------------------------------------
+HIGH: 41
+MEDIUM: 15
+LOW: 0
+
+STATUS
+--------------------------------------------------
+NEW: 55
+ACKNOWLEDGED: 1
+RESOLVED: 0
